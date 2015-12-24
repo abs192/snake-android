@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="green_snake">#7DFF5E</color>
+    <color name="blue_border">#ff159aff</color>
+</resources>
