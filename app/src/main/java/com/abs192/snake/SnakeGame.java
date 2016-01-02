@@ -3,10 +3,10 @@ package com.abs192.snake;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.graphics.Color;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -19,10 +19,11 @@ public class SnakeGame extends SurfaceView {
 
 
     private Paint paint;
-    public static boolean debug_mode = true;
+    public static boolean debug_mode = false;
     Snake snake;
     private GameLoopThread gameLoopThread;
     private SurfaceHolder holder;
+    private ArrayList<Piece> tempsnakeBody;
 
     enum State {PAUSED, PLAYING, DONE}
 
@@ -65,7 +66,11 @@ public class SnakeGame extends SurfaceView {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 gameLoopThread.setRunning(true);
-                gameLoopThread.start();
+                try {
+                    gameLoopThread.start();
+                } catch (IllegalThreadStateException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -74,9 +79,14 @@ public class SnakeGame extends SurfaceView {
             }
         });
         snake = new Snake();
+        tempsnakeBody = new ArrayList<>();
+        for (Piece p : snake.getBody()) {
+            tempsnakeBody.add(new Piece(p));
+        }
         currentState = State.DONE;
 
         paint = new Paint();
+        paint.setColor(Color.parseColor("#7DFF5E"));
         paint.setStyle(Paint.Style.STROKE);
     }
 
@@ -117,35 +127,70 @@ public class SnakeGame extends SurfaceView {
 
         }
 
-        switch (snake.getDirection()) {
+        Piece p = new Piece(snake.body.get(0));
+        Piece p0 = new Piece(snake.body.get(0));
+        switch (p.direction) {
             case NORTH:
+                if (p.point.y == 0)
+                    p.point.y = N_H;
+                else {
+                    p.point.y -= 1;
+                    p.point.y %= N_H;
+                }
                 break;
             case SOUTH:
-                Point p = snake.getBody().get(0);
-                p.y += 1;
-                p.y %= 32;
+                if (p.point.y == N_H)
+                    p.point.y = 0;
+                else {
+                    p.point.y += 1;
+                    p.point.y %= N_H;
+                }
                 snake.body.set(0, p);
                 break;
             case WEST:
+                if (p.point.x == 0)
+                    p.point.x = N_W;
+                else {
+                    p.point.x -= 1;
+                    p.point.x %= N_W;
+                }
                 break;
             case EAST:
+                if (p.point.x == N_W)
+                    p.point.x = 0;
+                else {
+                    p.point.x += 1;
+                    p.point.x %= N_W;
+                }
                 break;
         }
+
+        //had to make use of copy constructors. List work in references and those cause problems
+        tempsnakeBody.set(0, new Piece(p));
+        for (int i = 0; i < snake.getLength() - 1; i++) {
+            tempsnakeBody.set(i + 1, new Piece(snake.getBody().get(i)));
+        }
+
+        for (int i = snake.getLength() - 1; i >= 0; i--) {
+            snake.body.set(i, new Piece(tempsnakeBody.get(i)));
+        }
+
+        System.out.println(snake.body);
     }
 
     private void drawSnake(Canvas canvas) {
 
         paint.setStyle(Paint.Style.FILL);
 
-        ArrayList<Point> body = snake.getBody();
-        Point p = body.get(0);
-        int i = p.x;
-        int j = p.y;
+        ArrayList<Piece> body = snake.getBody();
+        Piece p = body.get(0);
+        int i = p.point.x;
+        int j = p.point.y;
         RectF r = new RectF(x * i, y * j, x * (i + 1), y * (j + 1));
         RectF rS = new RectF(r);
 
         float startAngle = 0;
-        switch (snake.getDirection()) {
+        switch (snake.getBody().get(0).direction) {
             case NORTH:
                 startAngle = 180;
                 rS.top += y / 2;
@@ -166,19 +211,24 @@ public class SnakeGame extends SurfaceView {
         canvas.drawArc(r, startAngle, 180, false, paint);
         canvas.drawRect(rS, paint);
 
-        for (Point po : body.subList(1, body.size())) {
-            i = po.x;
-            j = po.y;
+        int k = 0;
+        for (Piece po : body.subList(1, body.size())) {
+            i = po.point.x;
+            j = po.point.y;
             r = new RectF(x * i, y * j, x * (i + 1), y * (j + 1));
             canvas.drawRect(r, paint);
+            if (debug_mode) {
+                k++;
+                paint.setColor(Color.parseColor("#000000"));
+                canvas.drawText("" + k, x * i + x / 2, y * j + y / 2, paint);
+                paint.setColor(Color.parseColor("#7DFF5E"));
+            }
         }
 
         paint.setStyle(Paint.Style.STROKE);
     }
 
     private void drawBlocks(Canvas canvas) {
-        paint.setColor(Color.parseColor("#7DFF5E"));
-
         for (int i = 0; i < N_W; i++) {
             for (int j = 0; j < N_H; j++) {
                 canvas.drawRect(x * i, y * j, x * (i + 1), y * (j + 1), paint);
@@ -191,4 +241,27 @@ public class SnakeGame extends SurfaceView {
         return currentState;
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_UP:
+                float x = event.getX();
+                float y = event.getY();
+                Piece head = snake.getBody().get(0);
+//                Point p = head.po
+
+                if (x > getHeight() / 2 && y < getHeight()) {
+                    //north
+//                } else if () {
+//                    south
+//                } else if () {
+                    //west
+                } else {
+                    //east
+                }
+
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
 }

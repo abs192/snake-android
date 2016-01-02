@@ -10,21 +10,24 @@ import java.util.ArrayList;
  */
 public class Snake implements Serializable {
 
-    ArrayList<Point> body;
+    ArrayList<Piece> body;
     SnakeGame.DIRECTION direction;
-
     public Snake() {
-        this.body = new ArrayList<Point>();
-        body.add(new Point(5, 6));
-        setDirection(SnakeGame.DIRECTION.SOUTH);
+        this.body = new ArrayList<Piece>();
+        body.add(new Piece(SnakeGame.DIRECTION.NORTH, new Point(5, 6)));
+        body.add(new Piece(SnakeGame.DIRECTION.NORTH, new Point(5, 7)));
+        body.add(new Piece(SnakeGame.DIRECTION.WEST, new Point(6, 7)));
+        body.add(new Piece(SnakeGame.DIRECTION.WEST, new Point(7, 7)));
+        body.add(new Piece(SnakeGame.DIRECTION.WEST, new Point(8, 7)));
+        body.add(new Piece(SnakeGame.DIRECTION.WEST, new Point(9, 7)));
+        body.add(new Piece(SnakeGame.DIRECTION.WEST, new Point(10, 7)));
+        body.add(new Piece(SnakeGame.DIRECTION.WEST, new Point(11, 7)));
+        body.add(new Piece(SnakeGame.DIRECTION.NORTH, new Point(11, 8)));
+        body.add(new Piece(SnakeGame.DIRECTION.NORTH, new Point(11, 9)));
+
     }
 
-    public ArrayList<Point> addPoint() {
-        return body;
-    }
-
-
-    public ArrayList<Point> getBody() {
+    public ArrayList<Piece> getBody() {
         return body;
     }
 
@@ -33,15 +36,9 @@ public class Snake implements Serializable {
         return 0;
     }
 
-    public void setBody(ArrayList<Point> body) {
+    public void setBody(ArrayList<Piece> body) {
         this.body = body;
     }
 
-    public SnakeGame.DIRECTION getDirection() {
-        return direction;
-    }
 
-    public void setDirection(SnakeGame.DIRECTION direction) {
-        this.direction = direction;
-    }
 }
