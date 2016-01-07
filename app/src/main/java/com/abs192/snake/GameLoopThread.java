@@ -22,7 +22,7 @@ public class GameLoopThread extends Thread {
 
     @Override
     public void run() {
-        long ticksPS = 4000 / FPS;
+        long ticksPS = 500 / FPS;
         long startTime;
         long sleepTime;
         while (running) {

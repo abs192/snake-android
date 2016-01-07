@@ -126,7 +126,6 @@ public class SnakeGame extends SurfaceView {
         if (currentState == State.PLAYING) {
 
         }
-
         Piece p = new Piece(snake.body.get(0));
         Piece p0 = new Piece(snake.body.get(0));
         switch (p.direction) {
@@ -175,7 +174,7 @@ public class SnakeGame extends SurfaceView {
             snake.body.set(i, new Piece(tempsnakeBody.get(i)));
         }
 
-        System.out.println(snake.body);
+//        System.out.println(snake.body);
     }
 
     private void drawSnake(Canvas canvas) {
@@ -243,24 +242,32 @@ public class SnakeGame extends SurfaceView {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_UP:
-                float x = event.getX();
-                float y = event.getY();
-                Piece head = snake.getBody().get(0);
-//                Point p = head.po
-
-                if (x > getHeight() / 2 && y < getHeight()) {
-                    //north
-//                } else if () {
-//                    south
-//                } else if () {
-                    //west
-                } else {
-                    //east
-                }
-
-                break;
+        System.out.println(event + " | " + event.getAction());
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            float pX = event.getX();
+            float pY = event.getY();
+            Piece head = snake.getBody().get(0);
+            float x = (head.point.x + 1) * this.x;
+            float y = (head.point.y + 1) * this.y;
+            System.out.println(pX + "," + pY + " | " + x + "," + y);
+            switch (head.direction) {
+                case NORTH:
+                case SOUTH:
+                    if (pX < x) {
+                        head.direction = DIRECTION.WEST;
+                    } else {
+                        head.direction = DIRECTION.EAST;
+                    }
+                    return true;
+                case EAST:
+                case WEST:
+                    if (pY < y) {
+                        head.direction = DIRECTION.NORTH;
+                    } else {
+                        head.direction = DIRECTION.SOUTH;
+                    }
+                    return true;
+            }
         }
         return super.onTouchEvent(event);
     }
